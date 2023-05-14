@@ -7,7 +7,10 @@ Shader "Aula13/Unlit_Rotation"
     }
     SubShader
     {
+
         Tags { "RenderType"="Opaque" }
+
+
         LOD 100
 
         Pass

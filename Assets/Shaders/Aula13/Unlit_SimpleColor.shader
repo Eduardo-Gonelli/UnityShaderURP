@@ -2,7 +2,8 @@ Shader "Aula13/Unlit_SimpleColor"
 {	
 	Properties
 	{		
-		_MainTex("Texture", 2D) = "white" {}		
+		_MainTex("Texture", 2D) = "white" {}	
+		_Color("Color", Color) = (1, 1, 1, 1)
 	}	
 	SubShader
 	{
@@ -35,6 +36,10 @@ Shader "Aula13/Unlit_SimpleColor"
 			};
 			
 			sampler2D _MainTex;
+			float4 _Color;
+			
+			
+			
 			float4 _MainTex_ST;
 			
 			v2f vert(appdata v)
@@ -49,9 +54,8 @@ Shader "Aula13/Unlit_SimpleColor"
 			
 			half4 frag(v2f i) : SV_Target
 			{				
-				half4 col = tex2D(_MainTex, i.uv);				
-				//UNITY_APPLY_FOG(i.fogCoord, col);
-				return col;
+				half4 col = tex2D(_MainTex, i.uv);								
+				return col * _Color;
 			}
 			ENDHLSL
         }
