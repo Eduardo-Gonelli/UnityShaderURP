@@ -77,7 +77,18 @@ Shader "Aula15/Unlit_NormalMap"
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
                 fixed4 normal_map = tex2D(_NormalMap, i.uv_normal);
-                return col;
+                fixed3 normal_compressed = DXTCompression(normal_map);
+                // caso esteja utilizando UnityCg.cginc, pode usar o UnpackNormal
+                // que faz a mesma função do DXTCompression:
+                // fixed3 normal_compressed = UnpackNormal(normal_map);
+                float3x3 TBN_matrix = float3x3
+                (
+                    i.tangent_world.xyz,
+                    i.binormal_world,
+                    i.normal_world
+                );
+                fixed3 normal_color = normalize(mul(normal_compressed, TBN_matrix));
+                return fixed4 (normal_color, 1) * col;
             }
             ENDCG
         }
