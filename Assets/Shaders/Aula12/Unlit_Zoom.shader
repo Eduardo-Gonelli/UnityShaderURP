@@ -1,9 +1,10 @@
-Shader "Aula15/Unlit_AmbientColor"
+Shader "Aula12/Unlit_Zoom"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _AmbientColor("Ambient Color", Range(0, 1)) = 1
+        // propriedade de controle do zoom
+        _Zoom ("Zoom", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -14,8 +15,7 @@ Shader "Aula15/Unlit_AmbientColor"
         {
             CGPROGRAM
             #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
+            #pragma fragment frag            
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
@@ -29,28 +29,34 @@ Shader "Aula15/Unlit_AmbientColor"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                
+                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _AmbientColor;
+            float _Zoom; // link entre ShaderLab e Cg
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                
+                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                float3 ambient_color = unity_AmbientSky * _AmbientColor;
-                col.rgb += ambient_color;
+                // ceil para as coordenadas u e v
+                float u = ceil(i.uv.x) * 0.5;
+                float v = ceil(i.uv.y) * 0.5;
+                // calculo Lerp (interpolado) entre as variaveis
+                float uLerp = lerp(u, i.uv.x, _Zoom);
+                float vLerp = lerp(v, i.uv.y, _Zoom);
+                // adiciona os novos valores a textura
+                fixed4 col = tex2D(_MainTex, float2(uLerp, vLerp));                
+                UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG

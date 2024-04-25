@@ -1,4 +1,4 @@
-Shader "Aula15/Unlit_NormalMap"
+Shader "Aula14/Unlit_NormalMap"
 {
     Properties
     {
@@ -51,9 +51,9 @@ Shader "Aula15/Unlit_NormalMap"
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);  
                 // adiciona tiling e offset para a normal map
                 o.uv_normal = TRANSFORM_TEX(v.uv, _NormalMap);
-                // transforma as normais para espaço do mundo
+                // transforma as normais para espaï¿½o do mundo
                 o.normal_world = normalize(mul(unity_ObjectToWorld, float4(v.normal, 0)));
-                // transforma as tangentes para espaço do mundo
+                // transforma as tangentes para espaï¿½o do mundo
                 o.tangent_world = normalize(mul(v.tangent, unity_WorldToObject));
                 // calcula o produto cruzado entre a normal e a tangente, obtendo a binormal
                 o.binormal_world = normalize(cross(o.normal_world, o.tangent_world) * v.tangent.w);
@@ -79,7 +79,7 @@ Shader "Aula15/Unlit_NormalMap"
                 fixed4 normal_map = tex2D(_NormalMap, i.uv_normal);
                 fixed3 normal_compressed = DXTCompression(normal_map);
                 // caso esteja utilizando UnityCg.cginc, pode usar o UnpackNormal
-                // que faz a mesma função do DXTCompression:
+                // que faz a mesma funï¿½ï¿½o do DXTCompression:
                 // fixed3 normal_compressed = UnpackNormal(normal_map);
                 float3x3 TBN_matrix = float3x3
                 (

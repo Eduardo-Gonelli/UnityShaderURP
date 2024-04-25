@@ -1,9 +1,11 @@
-Shader "Aula13/Unlit_Frac"
+Shader "Aula12/Unlit_Length"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Size ("Size", Range(0.0, 0.5)) = 0.3
+        _Radius ("Radius", Range(0.0, 0.5)) = 0.3
+        _Center ("Center", Range(0, 1)) = 0.5
+        _Smooth ("Smooth", Range(0.0, 0.5)) = 0.01
     }
     SubShader
     {
@@ -14,8 +16,7 @@ Shader "Aula13/Unlit_Frac"
         {
             CGPROGRAM
             #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
+            #pragma fragment frag            
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
@@ -34,7 +35,15 @@ Shader "Aula13/Unlit_Frac"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Size;
+            float _Smooth;
+            float _Radius;
+            float _Center;
+
+            float circle(float2 p, float center, float radius, float smooth)
+            {
+                float c = length(p - center) - radius;
+                return smoothstep(c - smooth, c + smooth, radius);
+            }
 
             v2f vert (appdata v)
             {
@@ -43,15 +52,12 @@ Shader "Aula13/Unlit_Frac"
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);                
                 return o;
             }
-            // toda a transformacao e feita por aqui
+
             fixed4 frag(v2f i) : SV_Target
             {
-                i.uv *= 3; // 3 controla a quantidade de repetições
-                float2 fuv = frac(i.uv);
-                float circle = length(fuv - 0.5);
-                float wCircle = floor(_Size / circle);
-                fixed4 col = tex2D(_MainTex, fuv); // textura
-                return col * float4(wCircle.xxx, 1); // col recebe textura
+                float c = circle(i.uv, _Center, _Radius, _Smooth);
+                fixed4 col = tex2D(_MainTex, i.uv);
+                return float4(c.xxx, 1) * col;
             }
             ENDCG
         }

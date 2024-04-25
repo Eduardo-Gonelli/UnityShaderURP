@@ -1,4 +1,4 @@
-Shader "Aula16/Unlit_ShadowMap"
+Shader "Aula14/Unlit_ShadowMapping2"
 {
     Properties
     {
@@ -6,24 +6,19 @@ Shader "Aula16/Unlit_ShadowMap"
     }
     SubShader
     {
-        Tags 
-        { 
-            "RenderType"="Opaque" 
-            "RenderPipeline"="UniversalRenderPipeline"
-        }
+        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalRenderPipeline"}
         LOD 100
-        // Pass de cor padrão
+
         Pass
         {
-            Tags 
-            {
-                "LightMode"="UniversalForward"
-            }
+            Name "Shadow Map Texture"
+            Tags { "LightMode"="UniversalForward"}
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag   
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _SHADOWS_SOFT
 
             #include "HLSLSupport.cginc"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -37,7 +32,7 @@ Shader "Aula16/Unlit_ShadowMap"
 
             struct v2f
             {
-                float2 uv : TEXCOORD0;
+                float2 uv : TEXCOORD0;                
                 float4 vertex : SV_POSITION;
                 float4 shadowCoord : TEXCOORD1;
             };
@@ -49,11 +44,9 @@ Shader "Aula16/Unlit_ShadowMap"
             {
                 v2f o;
                 o.vertex = TransformObjectToHClip(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                // Realiza as transformações necessárias para passar da coordenada
-                // normalidada NDC para a coordenada de UV e fazer a projeção correta
-                VertexPositionInputs vertexInput = GetVertexPositionInputs(v.vertex.xyz);
-                o.shadowCoord = GetShadowCoord(vertexInput);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);  
+                VertexPositionInputs vertexInputs = GetVertexPositionInputs(v.vertex.xyz);
+                o.shadowCoord = GetShadowCoord(vertexInputs);
                 return o;
             }
 
@@ -61,8 +54,9 @@ Shader "Aula16/Unlit_ShadowMap"
             {
                 Light light = GetMainLight(i.shadowCoord);
                 float3 shadow = light.shadowAttenuation;
-                half4 col = tex2D(_MainTex, i.uv);
-                col.rgb *= shadow;
+                half4 col = tex2D(_MainTex, i.uv); 
+                float3 shadowColor = lerp(float3(0.1, 0.1, 0.1), float3(1, 1, 1), shadow);
+                col.rgb *= shadowColor;                                
                 return col;
             }
             ENDHLSL

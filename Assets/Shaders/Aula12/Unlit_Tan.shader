@@ -1,4 +1,4 @@
-Shader "Aula13/Unlit_Tan"
+Shader "Aula12/Unlit_Tan"
 {
     Properties
     {
@@ -53,8 +53,8 @@ Shader "Aula13/Unlit_Tan"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // calculo do abs da tangente com um clamp mínimo de 0 e máximo de 1
-                // utilizamos também o _Time para um efeito de tv antiga
+                // calculo do abs da tangente com um clamp mï¿½nimo de 0 e mï¿½ximo de 1
+                // utilizamos tambï¿½m o _Time para um efeito de tv antiga
                 float4 tanCol = clamp(0, abs(tan((i.uv.y - _Time) * _Sections)), 1);
                 tanCol *= _Color;
                 fixed4 col = tex2D(_MainTex, i.uv) * tanCol;                

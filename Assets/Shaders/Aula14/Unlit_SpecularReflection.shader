@@ -1,13 +1,11 @@
-Shader "Aula15/Unlit_AmbientReflection"
+Shader "Aula14/Unlit_SpecularReflection"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _ReflectionTex("Reflection Texture", Cube) = "white" {}
-        _ReflectionInt("Reflection Intensity", Range(0, 1)) = 1
-        _ReflectionMet("Reflection Metallic", Range(0, 1)) = 0
-        _ReflectionDet("Reflection Detail", Range(1, 9)) = 1
-        _ReflectionExp("Reflection Exposure", Range(1, 3)) = 1
+        _SpecularTex("Specular Texture", 2D) = "black" {}
+        _SpecularInt("Specular Intensity", Range(0, 5)) = 1
+        _SpecularPow("Specular Power", Range(0, 128)) = 64
     }
     SubShader
     {
@@ -34,6 +32,7 @@ Shader "Aula15/Unlit_AmbientReflection"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
+                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 float3 normal_world : TEXCOORD1;
                 float3 vertex_world : TEXCOORD2;
@@ -41,25 +40,23 @@ Shader "Aula15/Unlit_AmbientReflection"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            samplerCUBE _ReflectionTex;
-            float _ReflectionInt;
-            half _ReflectionDet;
-            float _ReflectionExp;
-            float _ReflectionMet;
+            sampler2D _SpecularTex;
+            float _SpecularInt;
+            float _SpecularPow;
+            float4 _LightColor0;
 
-            float3 AmbientReflection
+            float3 SpecularShading
             (
-                samplerCUBE colorRefl,
-                float reflectionInt,
-                half reflectionDet,
+                float3 colorRefl,
+                float specularInt,
                 float3 normal,
+                float3 lightDir,
                 float3 viewDir,
-                float reflectionExp
-            )
+                float specularPow
+            ) 
             {
-                float3 reflection_world = reflect(viewDir, normal);
-                float4 cubemap = texCUBElod(colorRefl, float4(reflection_world, reflectionDet));
-                return reflectionInt * cubemap.rgb * (cubemap.a * reflectionExp);
+                float3 h = normalize(lightDir + viewDir);
+                return colorRefl * specularInt * pow(max(0, dot(normal, h)), specularPow);
             }
 
             v2f vert (appdata v)
@@ -67,18 +64,23 @@ Shader "Aula15/Unlit_AmbientReflection"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.normal_world = normalize(mul(unity_ObjectToWorld, float4(v.normal, 0))).xyz;
+                o.normal_world = UnityObjectToWorldNormal(v.normal);
                 o.vertex_world = mul(unity_ObjectToWorld, v.vertex);
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                half3 normal = i.normal_world;
-                half3 viewDir = normalize(UnityWorldSpaceViewDir(i.vertex_world));
-                half3 reflection = AmbientReflection(_ReflectionTex, _ReflectionInt, _ReflectionDet, normal, -viewDir, _ReflectionExp);
-                col.rgb *= reflection + _ReflectionMet;
+                float3 viewDir = normalize(_WorldSpaceCameraPos - i.vertex_world);
+                float3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+                float3 normal = i.normal_world;
+                fixed3 colorRefl = _LightColor0.rgb;
+                fixed3 specCol = tex2D(_SpecularTex, i.uv) * colorRefl;
+                half3 specular = SpecularShading(specCol, _SpecularInt, normal, lightDir, viewDir, _SpecularPow);
+                col.rgb += specular;
+                UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG
