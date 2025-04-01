@@ -21,4 +21,11 @@ MonoBehaviour:
       de acordo com a apresenta\xE7\xE3o da aula preparada para este projeto."
     linkText: 
     url: 
+  - heading: 
+    text: "A pasta Scenes cont\xE9m cenas numeradas e os respectivos shaders demonstrados
+      nas cenas est\xE3o dentro da pasta Shaders com o n\xFAmero da cena e o material
+      utilizado. Explore as configura\xE7\xF5es e combine shaders para criar novos
+      efeitos."
+    linkText: 
+    url: 
   loadedLayout: 1
