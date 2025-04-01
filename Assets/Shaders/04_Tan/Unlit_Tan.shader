@@ -1,4 +1,4 @@
-Shader "Aula12/Unlit_Tan"
+Shader "CG_Aulas/04_Unlit_Tan"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-Shader "Aula12/Unlit_Rotation"
+Shader "CG_Aulas/03_Unlit_Rotation"
 {
     Properties
     {

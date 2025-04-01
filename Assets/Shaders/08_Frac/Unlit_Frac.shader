@@ -1,17 +1,13 @@
-Shader "Aula12/Unlit_Time"
+Shader "CG_Aulas/08_Unlit_Frac"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _Size ("Size", Range(0.0, 0.5)) = 0.3
     }
     SubShader
     {
-        Tags 
-        { 
-            "RenderType"="Transparent"
-            "Queue"="Transparent"
-        }
-        Blend SrcAlpha OneMinusSrcAlpha
+        Tags { "RenderType"="Opaque" }
         LOD 100
 
         Pass
@@ -38,6 +34,7 @@ Shader "Aula12/Unlit_Time"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float _Size;
 
             v2f vert (appdata v)
             {
@@ -46,16 +43,15 @@ Shader "Aula12/Unlit_Time"
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);                
                 return o;
             }
-
+            // toda a transformacao e feita por aqui
             fixed4 frag(v2f i) : SV_Target
             {
-                // anima a textura horizontalmente
-                // i.uv.x += _Time.y; 
-                // anima a textura com rota��o
-                i.uv.x += _SinTime.w;
-                i.uv.y += _CosTime.w;
-                fixed4 col = tex2D(_MainTex, i.uv);                                
-                return col;
+                i.uv *= 3; // 3 controla a quantidade de repeti��es
+                float2 fuv = frac(i.uv);
+                float circle = length(fuv - 0.5);
+                float wCircle = floor(_Size / circle);
+                fixed4 col = tex2D(_MainTex, fuv); // textura
+                return col * float4(wCircle.xxx, 1); // col recebe textura
             }
             ENDCG
         }

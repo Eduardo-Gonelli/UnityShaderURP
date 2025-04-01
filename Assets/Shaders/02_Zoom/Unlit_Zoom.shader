@@ -1,4 +1,4 @@
-Shader "Aula12/Unlit_Zoom"
+Shader "CG_Aulas/02_Unlit_Zoom"
 {
     Properties
     {

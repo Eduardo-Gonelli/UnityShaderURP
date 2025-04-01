@@ -1,4 +1,4 @@
-Shader "Aula12/Unlit_SmoothStep"
+Shader "CG_Aulas/06_Unlit_SmoothStep"
 {
     Properties
     {

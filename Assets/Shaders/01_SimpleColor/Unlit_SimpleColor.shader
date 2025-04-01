@@ -1,4 +1,4 @@
-Shader "Aula12/Unlit_SimpleColor"
+Shader "CG_Aulas/01_Unlit_SimpleColor"
 {	
 	Properties
 	{		
@@ -19,8 +19,10 @@ Shader "Aula12/Unlit_SimpleColor"
 			#pragma vertex vert
 			#pragma fragment frag			
 			#pragma multi_compile_fog	
-			#include "HLSLSupport.cginc"
-			#include "Library/PackageCache/com.unity.render-pipelines.universal@12.1.9/ShaderLibrary/Core.hlsl"
+			
+			#include "HLSLSupport.cginc"	
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
 			
 			struct appdata
 			{

@@ -1,4 +1,4 @@
-Shader "Aula12/Unlit_Step"
+Shader "CG_Aulas/10_Unlit_Time"
 {
     Properties
     {
@@ -6,7 +6,12 @@ Shader "Aula12/Unlit_Step"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags 
+        { 
+            "RenderType"="Transparent"
+            "Queue"="Transparent"
+        }
+        Blend SrcAlpha OneMinusSrcAlpha
         LOD 100
 
         Pass
@@ -44,10 +49,13 @@ Shader "Aula12/Unlit_Step"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                float edge = 0.5;
-                fixed3 sstep = 0;
-                sstep = step(edge, i.uv.y);                
-                return fixed4(sstep, 1);
+                // anima a textura horizontalmente
+                // i.uv.x += _Time.y; 
+                // anima a textura com rota��o
+                i.uv.x += _SinTime.w;
+                i.uv.y += _CosTime.w;
+                fixed4 col = tex2D(_MainTex, i.uv);                                
+                return col;
             }
             ENDCG
         }

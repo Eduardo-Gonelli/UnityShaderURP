@@ -1,11 +1,11 @@
-Shader "Aula12/Unlit_Floor_Toon"
+Shader "CG_Aulas/07_Unlit_Length"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        // controle de secoes
-        [IntRange]_Sections ("Sections", Range (2, 10)) = 5
-        _Gamma ("Gamma", Range (0, 1)) = 0 // adiciona gama extra
+        _Radius ("Radius", Range(0.0, 0.5)) = 0.3
+        _Center ("Center", Range(0, 1)) = 0.5
+        _Smooth ("Smooth", Range(0.0, 0.5)) = 0.01
     }
     SubShader
     {
@@ -16,8 +16,7 @@ Shader "Aula12/Unlit_Floor_Toon"
         {
             CGPROGRAM
             #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
+            #pragma fragment frag            
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
@@ -33,11 +32,18 @@ Shader "Aula12/Unlit_Floor_Toon"
                 float2 uv : TEXCOORD0;                
                 float4 vertex : SV_POSITION;
             };
-            //links ShaderLab e CG
+
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Sections;
-            float _Gamma;
+            float _Smooth;
+            float _Radius;
+            float _Center;
+
+            float circle(float2 p, float center, float radius, float smooth)
+            {
+                float c = length(p - center) - radius;
+                return smoothstep(c - smooth, c + smooth, radius);
+            }
 
             v2f vert (appdata v)
             {
@@ -49,11 +55,9 @@ Shader "Aula12/Unlit_Floor_Toon"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // realiza o calculo da iluminacao de acordo
-                // com as secoes
-                float fv = floor(i.uv.y * _Sections) * (_Sections/ 100.0);                
-                // aplica a gamma aos valores
-                return float4(fv.xxx, 1) + _Gamma;
+                float c = circle(i.uv, _Center, _Radius, _Smooth);
+                fixed4 col = tex2D(_MainTex, i.uv);
+                return float4(c.xxx, 1) * col;
             }
             ENDCG
         }

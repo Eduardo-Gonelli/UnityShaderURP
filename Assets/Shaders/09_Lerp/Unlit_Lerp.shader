@@ -1,4 +1,4 @@
-Shader "Aula12/Unlit_Lerp"
+Shader "CG_Aulas/09_Unlit_Lerp"
 {
     Properties
     {

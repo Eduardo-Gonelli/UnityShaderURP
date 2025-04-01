@@ -1,9 +1,11 @@
-Shader "Aula12/Unlit_Frac"
+Shader "CG_Aulas/05_Unlit_Floor_Toon"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Size ("Size", Range(0.0, 0.5)) = 0.3
+        // controle de secoes
+        [IntRange]_Sections ("Sections", Range (2, 10)) = 5
+        _Gamma ("Gamma", Range (0, 1)) = 0 // adiciona gama extra
     }
     SubShader
     {
@@ -31,10 +33,11 @@ Shader "Aula12/Unlit_Frac"
                 float2 uv : TEXCOORD0;                
                 float4 vertex : SV_POSITION;
             };
-
+            //links ShaderLab e CG
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Size;
+            float _Sections;
+            float _Gamma;
 
             v2f vert (appdata v)
             {
@@ -43,15 +46,14 @@ Shader "Aula12/Unlit_Frac"
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);                
                 return o;
             }
-            // toda a transformacao e feita por aqui
+
             fixed4 frag(v2f i) : SV_Target
             {
-                i.uv *= 3; // 3 controla a quantidade de repeti��es
-                float2 fuv = frac(i.uv);
-                float circle = length(fuv - 0.5);
-                float wCircle = floor(_Size / circle);
-                fixed4 col = tex2D(_MainTex, fuv); // textura
-                return col * float4(wCircle.xxx, 1); // col recebe textura
+                // realiza o calculo da iluminacao de acordo
+                // com as secoes
+                float fv = floor(i.uv.y * _Sections) * (_Sections/ 100.0);                
+                // aplica a gamma aos valores
+                return float4(fv.xxx, 1) + _Gamma;
             }
             ENDCG
         }
